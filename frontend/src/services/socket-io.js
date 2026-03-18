@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 
 // Initialize Supabase.
 // The user MUST provide these in .env (or Vercel environment variables)
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || "placeholder_key";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "placeholder_key";
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
