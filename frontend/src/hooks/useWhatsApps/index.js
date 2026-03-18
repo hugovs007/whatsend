@@ -58,18 +58,28 @@ const useWhatsApps = () => {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
+		let isMounted = true;
 		setLoading(true);
+		
 		const fetchSession = async () => {
 			try {
 				const { data } = await api.get("/whatsapp/");
-				dispatch({ type: "LOAD_WHATSAPPS", payload: data });
-				setLoading(false);
+				if (isMounted) {
+					dispatch({ type: "LOAD_WHATSAPPS", payload: data });
+					setLoading(false);
+				}
 			} catch (err) {
-				setLoading(false);
-				toastError(err);
+				if (isMounted) {
+					setLoading(false);
+					toastError(err);
+				}
 			}
 		};
 		fetchSession();
+
+		return () => {
+			isMounted = false;
+		};
 	}, []);
 
 	useEffect(() => {
