@@ -1,7 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase.
-// The user MUST provide these in .env (or Vercel environment variables)
+// Initialize Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "placeholder_key";
 
@@ -13,9 +12,6 @@ let listeners = [];
 export function subscribeToSupabase() {
   if (isConnected) return;
   
-  // Create a single global channel to listen to all public table changes
-  // Note: The user MUST enable Physical Replication / Realtime on the Supabase Dashboard
-  // for the tables: Messages, Tickets, Contacts, Users, etc.
   supabase
     .channel("public-db-changes")
     .on(
@@ -24,7 +20,6 @@ export function subscribeToSupabase() {
       (payload) => {
         const { table, eventType, new: newRec, old: oldRec } = payload;
         
-        // Very basic mapping from Postgres Events to legacy Socket.io Events
         const action = eventType === "INSERT" ? "create" : eventType === "UPDATE" ? "update" : "delete";
         const record = eventType === "DELETE" ? oldRec : newRec;
         
@@ -52,7 +47,6 @@ export function subscribeToSupabase() {
             return;
         }
 
-        // Notify all registered mock socket listeners
         listeners.forEach((listener) => {
           if (listener.event === eventName) {
             listener.callback(data);
@@ -65,7 +59,6 @@ export function subscribeToSupabase() {
     isConnected = true;
 }
 
-// Map the old Socket.io API methods to our new Supabase listeners array
 export function initSocket() {
   subscribeToSupabase();
   
@@ -79,18 +72,11 @@ export function initSocket() {
       );
     },
     emit: (event, data) => {
-      // In Serverless, we don't send socket emits back to the backend.
-      // E.g., "joinChatBox" is unnecessary because Supabase RLS handles permissions,
-      // and we just filter locally.
-      console.log(`Mock socket emit ignored in serverless: ${event}`);
+      console.log(`Mock socket emit ignored: ${event}`);
     },
-    disconnect: () => {
-      // We don't actually disconnect Supabase on unmount because 
-      // multiple components use the same channel. We just remove listeners.
-    },
+    disconnect: () => {},
   };
 
-  // Simulate immediate connection success for components that rely on it
   setTimeout(() => {
     listeners.forEach((listener) => {
       if (listener.event === "connect") {
