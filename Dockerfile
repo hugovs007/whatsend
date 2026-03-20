@@ -13,6 +13,10 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 WORKDIR /app
 COPY backend/package*.json ./
 RUN npm install
+
+# CORREÇÃO: Adicionar permissão de execução para os binários
+RUN chmod +x node_modules/.bin/*
+
 COPY backend/ .
 RUN npm run build
 
