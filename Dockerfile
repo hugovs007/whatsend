@@ -14,11 +14,12 @@ WORKDIR /app
 COPY backend/package*.json ./
 RUN npm install
 
-# CORREÇÃO: Adicionar permissão de execução para os binários
-RUN chmod +x node_modules/.bin/*
+# Garantir que o TypeScript está instalado e tem permissão
+RUN npm install -g typescript
+RUN chmod +x /usr/local/bin/tsc
 
 COPY backend/ .
-RUN npm run build
+RUN npx tsc
 
 FROM node:16-bullseye-slim
 RUN apt-get update && apt-get install -y \
