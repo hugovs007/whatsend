@@ -1,34 +1,46 @@
 // src/services/socket-io.js
 
-// Tenta importar o módulo normalmente, mas se falhar, usa a versão global (CDN)
-let supabase;
-try {
-  // Tenta importar o módulo ES (pode falhar em alguns ambientes)
-  const { createClient } = require("@supabase/supabase-js");
-  const SUPABASE_URL = "https://xhepyqsasoudtreiltxk.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
-  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  console.log("✅ Supabase via módulo ES");
-} catch (error) {
-  console.warn("Falha ao importar módulo ES, usando versão global (CDN)");
-  // Usa a versão global disponível via CDN
-  if (window.supabase) {
-    const SUPABASE_URL = "https://xhepyqsasoudtreiltxk.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log("✅ Supabase via CDN (global)");
-  } else {
-    console.error("❌ Supabase não disponível");
-  }
-}
-
+let supabase = null;
 let isConnected = false;
 let listeners = [];
+
+// Função que espera o Supabase estar disponível (CDN)
+function waitForSupabase() {
+  return new Promise((resolve) => {
+    if (window.supabase) {
+      resolve(window.supabase);
+      return;
+    }
+    const checkInterval = setInterval(() => {
+      if (window.supabase) {
+        clearInterval(checkInterval);
+        resolve(window.supabase);
+      }
+    }, 50);
+  });
+}
+
+// Inicialização assíncrona
+async function initSupabase() {
+  console.log("⏳ Aguardando Supabase (CDN)...");
+  const supabaseGlobal = await waitForSupabase();
+  console.log("✅ Supabase CDN carregado!");
+
+  const SUPABASE_URL = "https://xhepyqsasoudtreiltxk.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
+
+  try {
+    supabase = supabaseGlobal.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("✅ Cliente Supabase criado via CDN");
+  } catch (error) {
+    console.error("❌ Erro ao criar cliente Supabase:", error);
+  }
+}
 
 export function subscribeToSupabase() {
   if (isConnected) return;
   if (!supabase) {
-    console.error("❌ Cliente Supabase não inicializado");
+    console.warn("⚠️ Cliente Supabase ainda não inicializado");
     return;
   }
 
@@ -68,7 +80,13 @@ export function subscribeToSupabase() {
         }
 
         listeners.forEach((listener) => {
-          if (listener.event === eventName) listener.callback(data);
+          if (listener.event === eventName) {
+            try {
+              listener.callback(data);
+            } catch (err) {
+              console.error("Erro no callback:", err);
+            }
+          }
         });
       }
     ).subscribe((status) => {
@@ -83,7 +101,13 @@ export function subscribeToSupabase() {
 
 export function initSocket() {
   console.log("🎯 Inicializando socket...");
-  subscribeToSupabase();
+  // Inicia a inicialização do Supabase
+  initSupabase().then(() => {
+    // Tenta conectar após o cliente estar pronto
+    subscribeToSupabase();
+  }).catch(err => {
+    console.error("Falha na inicialização do Supabase:", err);
+  });
 
   const mockSocket = {
     on: (event, callback) => {
@@ -102,7 +126,13 @@ export function initSocket() {
 
   setTimeout(() => {
     listeners.forEach((listener) => {
-      if (listener.event === "connect") listener.callback();
+      if (listener.event === "connect") {
+        try {
+          listener.callback();
+        } catch (err) {
+          console.error("Erro no callback connect:", err);
+        }
+      }
     });
   }, 100);
 
