@@ -5,7 +5,7 @@ module.exports = {
         return queryInterface.bulkInsert("Users", [
             {
                 name: "Administrador",
-                email: "admin@whaticket.com",
+                email: "admin@whatsend.com",
                 passwordHash: "$2a$08$WaEmpmFDD/XkDqorkpQ42eUZozOqRCPkPcTkmHHMyuTGUOkI8dHsq",
                 profile: "admin",
                 tokenVersion: 0,

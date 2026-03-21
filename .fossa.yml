@@ -5,7 +5,7 @@ version: 2
 cli:
   server: https://app.fossa.com
   fetcher: custom
-  project: https://github.com/canove/whaticket.git
+  project: https://github.com/canove/whatsend.git
 analyze:
   modules:
   - name: backend

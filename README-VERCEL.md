@@ -1,4 +1,4 @@
-# WhatSend (WhaTicket fork) - Deploy em Vercel + Supabase (opcional)
+# WhatSend (whatsend fork) - Deploy em Vercel + Supabase (opcional)
 
 Este arquivo explica como preparar, rodar e fazer deploy do seu projeto whatsend na Vercel (Frontend) e em host backend compatível.
 
@@ -31,7 +31,7 @@ Edite `backend/.env` com:
 - `DB_DIALECT=mysql` (default) ou `postgres`
 - `DB_HOST=127.0.0.1`
 - `DB_PORT=3306`
-- `DB_NAME=whaticket`
+- `DB_NAME=whatsend`
 - `DB_USER=root`
 - `DB_PASS=...`
 - `BACKEND_URL=http://localhost:8080`
