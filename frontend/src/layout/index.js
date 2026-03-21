@@ -232,7 +232,7 @@ const LoggedInLayout = ({ children }) => {
             noWrap
             className={classes.title}
           >
-            whatsend
+            WhatSend
           </Typography>
 
           <div className={classes.themeSwitchContainer}>
