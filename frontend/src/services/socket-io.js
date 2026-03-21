@@ -1,54 +1,53 @@
 // socket-io.js
+import { createClient } from "@supabase/supabase-js";
+
+console.log('🚀 Iniciando socket-io.js');
+
+// Verificar se o createClient existe
+if (!createClient) {
+  console.error('❌ createClient não encontrado!');
+}
+
+// Valores diretos (sem depender de variáveis de ambiente)
+const SUPABASE_URL = "https://xhepyqsasoudtreiltxk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
+
+console.log('📡 Tentando criar cliente Supabase...');
+
+// Criar cliente com try-catch
 let supabase = null;
-let isInitialized = false;
+try {
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  console.log('✅ Cliente Supabase criado com sucesso!');
+  console.log('🔍 Cliente:', supabase ? 'objeto criado' : 'null');
+} catch (error) {
+  console.error('❌ Erro fatal ao criar cliente:', error);
+}
+
+export { supabase };
+
 let isConnected = false;
 let listeners = [];
-
-// Função para inicializar o Supabase de forma assíncrona
-const initializeSupabase = async () => {
-  if (isInitialized) return supabase;
-  
-  try {
-    console.log('🔄 Inicializando Supabase...');
-    
-    // Importar dinamicamente o módulo
-    const { createClient } = await import("@supabase/supabase-js");
-    
-    const supabaseUrl = "https://xhepyqsasoudtreiltxk.supabase.co";
-    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
-    
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-    isInitialized = true;
-    console.log('✅ Supabase inicializado com sucesso!');
-    return supabase;
-  } catch (error) {
-    console.error('❌ Erro ao inicializar Supabase:', error);
-    throw error;
-  }
-};
-
-// Exportar uma Promise que resolve com o cliente
-export const getSupabase = async () => {
-  return await initializeSupabase();
-};
 
 export function subscribeToSupabase() {
   if (isConnected) return;
   
-  // Aguardar inicialização antes de usar
-  initializeSupabase().then(client => {
-    if (!client) {
-      console.error('❌ Cliente Supabase não disponível');
-      return;
-    }
-    
-    console.log('🔌 Conectando ao Supabase...');
-    const channel = client.channel("public-db-changes");
+  // Verificar se o cliente foi criado
+  if (!supabase) {
+    console.error('❌ Cliente Supabase não disponível para conectar');
+    return;
+  }
+  
+  console.log('🔌 Conectando canal Supabase...');
+  
+  try {
+    const channel = supabase.channel("public-db-changes");
     
     channel.on(
       "postgres_changes",
       { event: "*", schema: "public" },
       (payload) => {
+        console.log('📨 Evento recebido:', payload);
         const { table, eventType, new: newRec, old: oldRec } = payload;
         
         const action = eventType === "INSERT" ? "create" : eventType === "UPDATE" ? "update" : "delete";
@@ -80,7 +79,11 @@ export function subscribeToSupabase() {
 
         listeners.forEach((listener) => {
           if (listener.event === eventName) {
-            listener.callback(data);
+            try {
+              listener.callback(data);
+            } catch (err) {
+              console.error('❌ Erro no callback:', err);
+            }
           }
         });
       }
@@ -89,18 +92,25 @@ export function subscribeToSupabase() {
     });
     
     isConnected = true;
-  }).catch(error => {
-    console.error('❌ Falha ao conectar ao Supabase:', error);
-  });
+    console.log('✅ Canal Supabase conectado!');
+  } catch (error) {
+    console.error('❌ Erro ao conectar canal:', error);
+  }
 }
 
 export function initSocket() {
   console.log('🎯 Inicializando socket...');
-  subscribeToSupabase();
+  
+  // Tentar conectar sem esperar
+  try {
+    subscribeToSupabase();
+  } catch (error) {
+    console.error('❌ Erro ao iniciar socket:', error);
+  }
   
   const mockSocket = {
     on: (event, callback) => {
-      console.log(`📝 Listener registrado: ${event}`);
+      console.log(`📝 Registrando listener: ${event}`);
       listeners.push({ event, callback });
     },
     off: (event, callback) => {
@@ -117,10 +127,14 @@ export function initSocket() {
   };
 
   setTimeout(() => {
-    console.log('🔄 Emitindo connect...');
+    console.log('🔄 Emitindo connect para', listeners.length, 'listeners');
     listeners.forEach((listener) => {
       if (listener.event === "connect") {
-        listener.callback();
+        try {
+          listener.callback();
+        } catch (err) {
+          console.error('❌ Erro no callback connect:', err);
+        }
       }
     });
   }, 100);
