@@ -1,88 +1,49 @@
-import { createClient } from "@supabase/supabase-js";
-
-// Função para obter as variáveis de ambiente de forma segura
-const getEnvVariables = () => {
-  // Tentar diferentes formas de obter as variáveis
-  let url = null;
-  let key = null;
-  
-  // Tentar import.meta.env (Vite)
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    url = import.meta.env.VITE_SUPABASE_URL;
-    key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    console.log('📦 Carregando via import.meta.env');
-  }
-  
-  // Tentar process.env (para Node.js)
-  if (!url && typeof process !== 'undefined' && process.env) {
-    url = process.env.VITE_SUPABASE_URL;
-    key = process.env.VITE_SUPABASE_ANON_KEY;
-    console.log('📦 Carregando via process.env');
-  }
-  
-  // Se ainda não encontrou, usar os valores diretos (apenas para desenvolvimento)
-  if (!url || !key) {
-    console.warn('⚠️ Variáveis de ambiente não encontradas, usando valores padrão');
-    url = "https://xhepyqsasoudtreiltxk.supabase.co";
-    key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
-  }
-  
-  return { url, key };
-};
-
-// Inicializar o cliente Supabase de forma síncrona
-let supabaseClient = null;
+// socket-io.js
+let supabase = null;
 let isInitialized = false;
+let isConnected = false;
+let listeners = [];
 
-const initializeSupabase = () => {
-  if (isInitialized) return supabaseClient;
+// Função para inicializar o Supabase de forma assíncrona
+const initializeSupabase = async () => {
+  if (isInitialized) return supabase;
   
   try {
-    const { url, key } = getEnvVariables();
+    console.log('🔄 Inicializando Supabase...');
     
-    if (!url || !key) {
-      throw new Error('URL ou chave do Supabase não definidas');
-    }
+    // Importar dinamicamente o módulo
+    const { createClient } = await import("@supabase/supabase-js");
     
-    console.log('✅ Inicializando Supabase com:', { url: url.substring(0, 30) + '...', keyExists: !!key });
-    supabaseClient = createClient(url, key);
+    const supabaseUrl = "https://xhepyqsasoudtreiltxk.supabase.co";
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
+    
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
     isInitialized = true;
-    return supabaseClient;
+    console.log('✅ Supabase inicializado com sucesso!');
+    return supabase;
   } catch (error) {
     console.error('❌ Erro ao inicializar Supabase:', error);
     throw error;
   }
 };
 
-// Exportar o cliente, mas inicializar quando for usado
-export const supabase = new Proxy({}, {
-  get: function(target, prop) {
-    if (!isInitialized) {
-      initializeSupabase();
-    }
-    return supabaseClient[prop];
-  }
-});
-
-let isConnected = false;
-let listeners = [];
+// Exportar uma Promise que resolve com o cliente
+export const getSupabase = async () => {
+  return await initializeSupabase();
+};
 
 export function subscribeToSupabase() {
   if (isConnected) return;
   
-  try {
-    // Garantir que o cliente está inicializado
-    if (!isInitialized) {
-      initializeSupabase();
-    }
-    
-    if (!supabaseClient) {
-      console.error('❌ Cliente Supabase não inicializado');
+  // Aguardar inicialização antes de usar
+  initializeSupabase().then(client => {
+    if (!client) {
+      console.error('❌ Cliente Supabase não disponível');
       return;
     }
     
     console.log('🔌 Conectando ao Supabase...');
-    const channel = supabaseClient.channel("public-db-changes");
+    const channel = client.channel("public-db-changes");
     
     channel.on(
       "postgres_changes",
@@ -123,29 +84,23 @@ export function subscribeToSupabase() {
           }
         });
       }
-    )
-    .subscribe((status) => {
-      console.log('📡 Status do canal Supabase:', status);
+    ).subscribe((status) => {
+      console.log('📡 Status do canal:', status);
     });
     
     isConnected = true;
-  } catch (error) {
-    console.error('❌ Erro ao conectar ao Supabase:', error);
-  }
+  }).catch(error => {
+    console.error('❌ Falha ao conectar ao Supabase:', error);
+  });
 }
 
 export function initSocket() {
   console.log('🎯 Inicializando socket...');
-  
-  try {
-    subscribeToSupabase();
-  } catch (error) {
-    console.error('❌ Erro ao iniciar socket:', error);
-  }
+  subscribeToSupabase();
   
   const mockSocket = {
     on: (event, callback) => {
-      console.log(`📝 Registrando listener para evento: ${event}`);
+      console.log(`📝 Listener registrado: ${event}`);
       listeners.push({ event, callback });
     },
     off: (event, callback) => {
@@ -154,7 +109,7 @@ export function initSocket() {
       );
     },
     emit: (event, data) => {
-      console.log(`📤 Mock socket emit ignorado: ${event}`);
+      console.log(`📤 Mock emit: ${event}`);
     },
     disconnect: () => {
       console.log('🔌 Socket desconectado');
@@ -162,7 +117,7 @@ export function initSocket() {
   };
 
   setTimeout(() => {
-    console.log('🔄 Emitindo evento connect para listeners');
+    console.log('🔄 Emitindo connect...');
     listeners.forEach((listener) => {
       if (listener.event === "connect") {
         listener.callback();
