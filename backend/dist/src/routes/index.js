@@ -26,5 +26,7 @@ routes.use(messageRoutes_1.default);
 routes.use(whatsappSessionRoutes_1.default);
 routes.use(queueRoutes_1.default);
 routes.use(quickAnswerRoutes_1.default);
+const webhookRoutes_1 = __importDefault(require("./webhookRoutes"));
 routes.use("/api/messages", apiRoutes_1.default);
+routes.use(webhookRoutes_1.default);
 exports.default = routes;

@@ -16,10 +16,8 @@ const WhatsappQueue_1 = __importDefault(require("../models/WhatsappQueue"));
 const UserQueue_1 = __importDefault(require("../models/UserQueue"));
 const QuickAnswer_1 = __importDefault(require("../models/QuickAnswer"));
 const WppKey_1 = __importDefault(require("../models/WppKey"));
-// eslint-disable-next-line
-const dbConfig = require("../config/database");
-// import dbConfig from "../config/database";
-const sequelize = new sequelize_typescript_1.Sequelize(dbConfig);
+const database_1 = __importDefault(require("../config/database"));
+const sequelize = new sequelize_typescript_1.Sequelize(database_1.default);
 const models = [
     User_1.default,
     Contact_1.default,

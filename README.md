@@ -1,11 +1,11 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate?business=VWW3BHW4AWHUY&item_name=Desenvolvimento+de+Software&currency_code=BRL)
-[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B21084%2Fgithub.com%2Fcanove%2Fwhatsend.svg?type=shield)](https://app.fossa.com/projects/custom%2B21084%2Fgithub.com%2Fcanove%2Fwhatsend?ref=badge_shield)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=canove_whatsend&metric=alert_status)](https://sonarcloud.io/dashboard?id=canove_whatsend)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=canove_whatsend&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=canove_whatsend)
+[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B21084%2Fgithub.com%2Fcanove%2FWhatSend.svg?type=shield)](https://app.fossa.com/projects/custom%2B21084%2Fgithub.com%2Fcanove%2FWhatSend?ref=badge_shield)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=canove_WhatSend&metric=alert_status)](https://sonarcloud.io/dashboard?id=canove_WhatSend)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=canove_WhatSend&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=canove_WhatSend)
 [![Discord Chat](https://img.shields.io/discord/784109818247774249.svg?logo=discord)](https://discord.gg/Dp2tTZRYHg)
-[![Forum](https://img.shields.io/badge/forum-online-blue.svg?logo=discourse)](https://whatsend.online/)
+[![Forum](https://img.shields.io/badge/forum-online-blue.svg?logo=discourse)](https://WhatSend.online/)
 
-# whatsend!
+# WhatSend!
 
 **NOTE**: The new version of whatsapp-web.js required Node 14. Upgrade your installations to keep using it.
 
@@ -27,8 +27,8 @@ If a contact sent a new message in less than 2 hours interval, and there is no t
 
 ## Screenshots
 
-![](https://github.com/canove/whatsend/raw/master/images/whatsend-queues.gif)
-<img src="https://raw.githubusercontent.com/canove/whatsend/master/images/chat2.png" width="350"> <img src="https://raw.githubusercontent.com/canove/whatsend/master/images/chat3.png" width="350"> <img src="https://raw.githubusercontent.com/canove/whatsend/master/images/multiple-whatsapps2.png" width="350"> <img src="https://raw.githubusercontent.com/canove/whatsend/master/images/contacts1.png" width="350">
+![](https://github.com/canove/WhatSend/raw/master/images/WhatSend-queues.gif)
+<img src="https://raw.githubusercontent.com/canove/WhatSend/master/images/chat2.png" width="350"> <img src="https://raw.githubusercontent.com/canove/WhatSend/master/images/chat3.png" width="350"> <img src="https://raw.githubusercontent.com/canove/WhatSend/master/images/multiple-whatsapps2.png" width="350"> <img src="https://raw.githubusercontent.com/canove/WhatSend/master/images/contacts1.png" width="350">
 
 ## Features
 
@@ -45,7 +45,7 @@ Create Mysql Database using docker:
 _Note_: change MYSQL_DATABASE, MYSQL_PASSWORD, MYSQL_USER and MYSQL_ROOT_PASSWORD.
 
 ```bash
-docker run --name whatsenddb -e MYSQL_ROOT_PASSWORD=strongpassword -e MYSQL_DATABASE=whatsend -e MYSQL_USER=whatsend -e MYSQL_PASSWORD=whatsend --restart always -p 3306:3306 -d mariadb:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
+docker run --name WhatSenddb -e MYSQL_ROOT_PASSWORD=strongpassword -e MYSQL_DATABASE=WhatSend -e MYSQL_USER=WhatSend -e MYSQL_PASSWORD=WhatSend --restart always -p 3306:3306 -d mariadb:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
 
 # Or run using `docker-compose` as below
 # Before copy .env.example to .env first and set the variables in the file.
@@ -65,7 +65,7 @@ sudo apt-get install -y libxshmfence-dev libgbm-dev wget unzip fontconfig locale
 Clone this repo
 
 ```bash
-git clone https://github.com/canove/whatsend/ whatsend
+git clone https://github.com/canove/WhatSend/ WhatSend
 ```
 
 Go to backend folder and create .env file:
@@ -179,7 +179,7 @@ Create Mysql Database using docker:
 _Note_: change MYSQL_DATABASE, MYSQL_PASSWORD, MYSQL_USER and MYSQL_ROOT_PASSWORD.
 
 ```bash
-docker run --name whatsenddb -e MYSQL_ROOT_PASSWORD=strongpassword -e MYSQL_DATABASE=whatsend -e MYSQL_USER=whatsend -e MYSQL_PASSWORD=whatsend --restart always -p 3306:3306 -d mariadb:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
+docker run --name WhatSenddb -e MYSQL_ROOT_PASSWORD=strongpassword -e MYSQL_DATABASE=WhatSend -e MYSQL_USER=WhatSend -e MYSQL_PASSWORD=WhatSend --restart always -p 3306:3306 -d mariadb:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
 
 # Or run using `docker-compose` as below
 # Before copy .env.example to .env first and set the variables in the file.
@@ -194,14 +194,14 @@ Clone this repository:
 
 ```bash
 cd ~
-git clone https://github.com/canove/whatsend whatsend
+git clone https://github.com/canove/WhatSend WhatSend
 ```
 
 Create backend .env file and fill with details:
 
 ```bash
-cp whatsend/backend/.env.example whatsend/backend/.env
-nano whatsend/backend/.env
+cp WhatSend/backend/.env.example WhatSend/backend/.env
+nano WhatSend/backend/.env
 ```
 
 ```bash
@@ -230,7 +230,7 @@ sudo apt-get install -y libxshmfence-dev libgbm-dev wget unzip fontconfig locale
 Install backend dependencies, build app, run migrations and seeds:
 
 ```bash
-cd whatsend/backend
+cd WhatSend/backend
 npm install
 npm run build
 npx sequelize db:migrate
@@ -243,7 +243,7 @@ Install pm2 **with sudo**, and start backend with it:
 
 ```bash
 sudo npm install -g pm2
-pm2 start dist/server.js --name whatsend-backend
+pm2 start dist/server.js --name WhatSend-backend
 ```
 
 Make pm2 auto start after reboot:
@@ -280,7 +280,7 @@ npm run build
 Start frontend with pm2, and save pm2 process list to start automatically after reboot:
 
 ```bash
-pm2 start server.js --name whatsend-frontend
+pm2 start server.js --name WhatSend-frontend
 pm2 save
 ```
 
@@ -291,8 +291,8 @@ deploy@ubuntu-whats:~$ pm2 list
 ┌─────┬─────────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
 │ id  │ name                    │ namespace   │ version │ mode    │ pid      │ uptime │ .    │ status    │ cpu      │ mem      │ user     │ watching │
 ├─────┼─────────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 1   │ whatsend-frontend      │ default     │ 0.1.0   │ fork    │ 179249   │ 12D    │ 0    │ online    │ 0.3%     │ 50.2mb   │ deploy   │ disabled │
-│ 6   │ whatsend-backend       │ default     │ 1.0.0   │ fork    │ 179253   │ 12D    │ 15   │ online    │ 0.3%     │ 118.5mb  │ deploy   │ disabled │
+│ 1   │ WhatSend-frontend      │ default     │ 0.1.0   │ fork    │ 179249   │ 12D    │ 0    │ online    │ 0.3%     │ 50.2mb   │ deploy   │ disabled │
+│ 6   │ WhatSend-backend       │ default     │ 1.0.0   │ fork    │ 179253   │ 12D    │ 15   │ online    │ 0.3%     │ 118.5mb  │ deploy   │ disabled │
 └─────┴─────────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
 
 ```
@@ -312,7 +312,7 @@ sudo rm /etc/nginx/sites-enabled/default
 Create a new nginx site to frontend app:
 
 ```bash
-sudo nano /etc/nginx/sites-available/whatsend-frontend
+sudo nano /etc/nginx/sites-available/WhatSend-frontend
 ```
 
 Edit and fill it with this information, changing `server_name` to yours equivalent to `myapp.mydomain.com`:
@@ -338,8 +338,8 @@ server {
 Create another one to backend api, changing `server_name` to yours equivalent to `api.mydomain.com`, and `proxy_pass` to your localhost backend node server URL:
 
 ```bash
-sudo cp /etc/nginx/sites-available/whatsend-frontend /etc/nginx/sites-available/whatsend-backend
-sudo nano /etc/nginx/sites-available/whatsend-backend
+sudo cp /etc/nginx/sites-available/WhatSend-frontend /etc/nginx/sites-available/WhatSend-backend
+sudo nano /etc/nginx/sites-available/WhatSend-backend
 ```
 
 ```bash
@@ -355,8 +355,8 @@ server {
 Create a symbolic links to enable nginx sites:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/whatsend-frontend /etc/nginx/sites-enabled
-sudo ln -s /etc/nginx/sites-available/whatsend-backend /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/sites-available/WhatSend-frontend /etc/nginx/sites-enabled
+sudo ln -s /etc/nginx/sites-available/WhatSend-backend /etc/nginx/sites-enabled
 ```
 
 By default, nginx limit body size to 1MB, which isn't enough for some media uploads. Lets change it to 20MB, adding a new line to config file:
@@ -394,7 +394,7 @@ sudo certbot --nginx
 
 ### Using docker and docker-compose
 
-To run whatsend using docker you must perform the following steps:
+To run WhatSend using docker you must perform the following steps:
 
 ```bash
 cp .env.example .env
@@ -407,7 +407,7 @@ Now it will be necessary to configure the .env using its information, the variab
 MYSQL_ENGINE=                           # default: mariadb
 MYSQL_VERSION=                          # default: 10.6
 MYSQL_ROOT_PASSWORD=strongpassword      # change it please
-MYSQL_DATABASE=whatsend
+MYSQL_DATABASE=WhatSend
 MYSQL_PORT=3306                         # default: 3306; Use this port to expose mysql server
 TZ=America/Fortaleza                    # default: America/Fortaleza; Timezone for mysql
 
@@ -471,25 +471,25 @@ certbot certonly --cert-name frontend --webroot --webroot-path ./ssl/www/ -d mya
 
 ## Access Data
 
-User: admin@whatsend.com
+User: admin@WhatSend.com
 Password: admin
 
 ## Upgrading
 
-whatsend is a working in progress and we are adding new features frequently. To update your old installation and get all the new features, you can use a bash script like this:
+WhatSend is a working in progress and we are adding new features frequently. To update your old installation and get all the new features, you can use a bash script like this:
 
 **Note**: Always check the .env.example and adjust your .env file before upgrading, since some new variable may be added.
 
 ```bash
-nano updatewhatsend
+nano updateWhatSend
 ```
 
 ```bash
 #!/bin/bash
-echo "Updating whatsend, please wait."
+echo "Updating WhatSend, please wait."
 
 cd ~
-cd whatsend
+cd WhatSend
 git pull
 cd backend
 npm install
@@ -509,8 +509,8 @@ echo "Update finished. Enjoy!"
 Make it executable and run it:
 
 ```bash
-chmod +x updatewhatsend
-./updatewhatsend
+chmod +x updateWhatSend
+./updateWhatSend
 ```
 
 ## Contributing
