@@ -1,33 +1,60 @@
-import { createClient } from "@supabase/supabase-js";
+// src/services/socket-io.js
 
-// Initialize Supabase.
-// The user MUST provide these in .env (or Vercel environment variables)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "placeholder_key";
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
+let supabase = null;
 let isConnected = false;
 let listeners = [];
 
+// Função que espera o Supabase estar disponível (CDN)
+function waitForSupabase() {
+  return new Promise((resolve) => {
+    if (window.supabase) {
+      resolve(window.supabase);
+      return;
+    }
+    const checkInterval = setInterval(() => {
+      if (window.supabase) {
+        clearInterval(checkInterval);
+        resolve(window.supabase);
+      }
+    }, 50);
+  });
+}
+
+// Inicialização assíncrona
+async function initSupabase() {
+  console.log("⏳ Aguardando Supabase (CDN)...");
+  const supabaseGlobal = await waitForSupabase();
+  console.log("✅ Supabase CDN carregado!");
+
+  const SUPABASE_URL = "https://xhepyqsasoudtreiltxk.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZXB5cXNhc291ZHRyZWlsdHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MDY3OTAsImV4cCI6MjA4OTI4Mjc5MH0.p0FSwZvzRQwDjzPbFlA2oz_N7RGNRXKcKGFOYq4f2-k";
+
+  try {
+    supabase = supabaseGlobal.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("✅ Cliente Supabase criado via CDN");
+  } catch (error) {
+    console.error("❌ Erro ao criar cliente Supabase:", error);
+  }
+}
+
 export function subscribeToSupabase() {
   if (isConnected) return;
-  
-  // Create a single global channel to listen to all public table changes
-  // Note: The user MUST enable Physical Replication / Realtime on the Supabase Dashboard
-  // for the tables: Messages, Tickets, Contacts, Users, etc.
-  supabase
-    .channel("public-db-changes")
-    .on(
+  if (!supabase) {
+    console.warn("⚠️ Cliente Supabase ainda não inicializado");
+    return;
+  }
+
+  console.log("🔌 Conectando canal Supabase...");
+  try {
+    const channel = supabase.channel("public-db-changes");
+    channel.on(
       "postgres_changes",
       { event: "*", schema: "public" },
       (payload) => {
         const { table, eventType, new: newRec, old: oldRec } = payload;
-        
-        // Very basic mapping from Postgres Events to legacy Socket.io Events
         const action = eventType === "INSERT" ? "create" : eventType === "UPDATE" ? "update" : "delete";
         const record = eventType === "DELETE" ? oldRec : newRec;
-        
+
         let eventName = "";
         let data = { action };
 
@@ -52,23 +79,36 @@ export function subscribeToSupabase() {
             return;
         }
 
-        // Notify all registered mock socket listeners
         listeners.forEach((listener) => {
           if (listener.event === eventName) {
-            listener.callback(data);
+            try {
+              listener.callback(data);
+            } catch (err) {
+              console.error("Erro no callback:", err);
+            }
           }
         });
       }
-    )
-    .subscribe();
-    
+    ).subscribe((status) => {
+      console.log("📡 Status do canal:", status);
+    });
     isConnected = true;
+    console.log("✅ Canal conectado!");
+  } catch (error) {
+    console.error("❌ Erro ao conectar canal:", error);
+  }
 }
 
-// Map the old Socket.io API methods to our new Supabase listeners array
 export function initSocket() {
-  subscribeToSupabase();
-  
+  console.log("🎯 Inicializando socket...");
+  // Inicia a inicialização do Supabase
+  initSupabase().then(() => {
+    // Tenta conectar após o cliente estar pronto
+    subscribeToSupabase();
+  }).catch(err => {
+    console.error("Falha na inicialização do Supabase:", err);
+  });
+
   const mockSocket = {
     on: (event, callback) => {
       listeners.push({ event, callback });
@@ -79,22 +119,19 @@ export function initSocket() {
       );
     },
     emit: (event, data) => {
-      // In Serverless, we don't send socket emits back to the backend.
-      // E.g., "joinChatBox" is unnecessary because Supabase RLS handles permissions,
-      // and we just filter locally.
-      console.log(`Mock socket emit ignored in serverless: ${event}`);
+      console.log(`Mock socket emit ignored: ${event}`);
     },
-    disconnect: () => {
-      // We don't actually disconnect Supabase on unmount because 
-      // multiple components use the same channel. We just remove listeners.
-    },
+    disconnect: () => {},
   };
 
-  // Simulate immediate connection success for components that rely on it
   setTimeout(() => {
     listeners.forEach((listener) => {
       if (listener.event === "connect") {
-        listener.callback();
+        try {
+          listener.callback();
+        } catch (err) {
+          console.error("Erro no callback connect:", err);
+        }
       }
     });
   }, 100);

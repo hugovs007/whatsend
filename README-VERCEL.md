@@ -1,6 +1,6 @@
-# WhatSend (WhaTicket fork) - Deploy em Vercel + Supabase (opcional)
+# WhatSend (WhatSend fork) - Deploy em Vercel + Supabase (opcional)
 
-Este arquivo explica como preparar, rodar e fazer deploy do seu projeto whatsend na Vercel (Frontend) e em host backend compatível.
+Este arquivo explica como preparar, rodar e fazer deploy do seu projeto WhatSend na Vercel (Frontend) e em host backend compatível.
 
 ## 1) Estrutura do projeto
 
@@ -21,7 +21,7 @@ Este arquivo explica como preparar, rodar e fazer deploy do seu projeto whatsend
 **Backend**
 
 ```powershell
-cd c:\pxxope\whatsend\backend
+cd c:\pxxope\WhatSend\backend
 npm install
 copy .env.example .env
 ```
@@ -31,7 +31,7 @@ Edite `backend/.env` com:
 - `DB_DIALECT=mysql` (default) ou `postgres`
 - `DB_HOST=127.0.0.1`
 - `DB_PORT=3306`
-- `DB_NAME=whaticket`
+- `DB_NAME=WhatSend`
 - `DB_USER=root`
 - `DB_PASS=...`
 - `BACKEND_URL=http://localhost:8080`
@@ -42,7 +42,7 @@ Edite `backend/.env` com:
 
 ```powershell
 # via docker-compose local
-cd c:\pxxope\whatsend
+cd c:\pxxope\WhatSend
 docker-compose up -d mysql
 
 # migrar + seed
@@ -61,7 +61,7 @@ npm run dev
 **Frontend**
 
 ```powershell
-cd c:\pxxope\whatsend\frontend
+cd c:\pxxope\WhatSend\frontend
 npm install
 # configurar environment variable da URL do backend:
 # em .env:

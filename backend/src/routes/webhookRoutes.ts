@@ -10,7 +10,7 @@ webhookRoutes.get("/webhook", (req: Request, res: Response) => {
 
   // The verify token should match the one configured in the Meta App Dashboard
   // TODO: Add META_VERIFY_TOKEN to .env
-  const VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || "whatsend_secret";
+  const VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || "WhatSend_secret";
 
   if (mode && token) {
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
