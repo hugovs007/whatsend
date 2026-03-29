@@ -74,15 +74,18 @@ const useAuth = () => {
 		const socket = openSocket();
 
 		socket.on("user", data => {
-			if (data.action === "update" && data.user.id === user.id) {
-				setUser(data.user);
-			}
+			if (data.action !== "update") return;
+			setUser(prevUser => {
+				if (!prevUser?.id) return prevUser;
+				if (data.user.id !== prevUser.id) return prevUser;
+				return data.user;
+			});
 		});
 
 		return () => {
 			socket.disconnect();
 		};
-	}, [user]);
+	}, []);
 
 	const handleLogin = async userData => {
 		setLoading(true);
