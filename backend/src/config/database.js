@@ -1,21 +1,43 @@
-module.exports = {
-  dialect: process.env.DB_DIALECT || 'postgres',
-  host: process.env.DB_HOST || 'aws-1-us-east-1.pooler.supabase.com',
-  username: process.env.DB_USER || 'postgres.xhepyqsasoudtreiltxk',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'postgres',
-  port: process.env.DB_PORT || 6543,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  },
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  },
-  logging: process.env.NODE_ENV === 'development' ? console.log : false
-}
+const dialect = process.env.DB_DIALECT || "postgres";
+const isPostgres = dialect === "postgres";
+
+module.exports =
+  process.env.DATABASE_URL && process.env.DATABASE_URL.trim().length > 0
+    ? {
+        url: process.env.DATABASE_URL,
+        dialect,
+        dialectOptions: isPostgres
+          ? {
+              ssl: {
+                require: true,
+                rejectUnauthorized: false
+              }
+            }
+          : undefined,
+        define: {
+          timestamps: true,
+          underscored: true
+        },
+        logging: false
+      }
+    : {
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT || 5432),
+        database: process.env.DB_NAME,
+        username: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        dialect,
+        dialectOptions: isPostgres
+          ? {
+              ssl: {
+                require: true,
+                rejectUnauthorized: false
+              }
+            }
+          : undefined,
+        define: {
+          timestamps: true,
+          underscored: true
+        },
+        logging: false
+      };
